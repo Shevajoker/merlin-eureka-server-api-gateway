@@ -1,0 +1,101 @@
+services:
+  eserver:
+    image: shevajoker/eureka-server:latest
+    restart: always
+    container_name: eserver
+    ports:
+      - 8761:8761
+    environment:
+      - EUREKA_HOST=http://eserver:8761/eureka/
+    networks:
+      - eserver  
+
+  newseureka:
+    image: shevajoker/news-service:latest
+    container_name: newseureka
+    ports:
+      - 64588:64588
+    environment:
+      - EUREKA_HOST=http://eserver:8761/eureka/
+    depends_on:
+      - eserver
+    networks:
+      - newseureka
+      
+      
+  db-task:
+    image: postgres:14.1-alpine
+    container_name: db-task
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: db_crm_tasks
+    ports:
+      - '5433:5432'
+    networks:
+      - db-task
+      
+  taskseureka:
+    image: shevajoker/task-service:latest
+    container_name: taskseureka
+    ports:
+      - 64589:8080
+    environment:
+      - EUREKA_HOST=http://eserver:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-task:5432/db_crm_tasks
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      - db-task
+      - eserver
+    networks:
+      - taskseureka
+        
+  
+  
+  
+  usersinfo:
+    image: shevajoker/usersinfo-service:latest
+    container_name: usersinfo
+    ports:
+      - 64590:8080
+    environment:
+      - EUREKA_HOST=http://eserver:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-keycloak:5432/keycloak_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    networks:
+      - usersinfo
+  
+      
+      
+  api-gateway:
+    image: shevajoker/api-gateway-service:latest
+    restart: always
+    container_name: api-gateway
+    ports:
+      - 8765:8765
+    environment:
+      - EUREKA_HOST=http://eserver:8761/eureka/
+    depends_on:
+      - eserver
+    networks:
+      - api-gateway
+      
+networks:
+  eserver:
+    name: task-network
+  newseureka:
+    name: task-network
+  db-task:
+    name: task-network      
+  taskseureka:
+    name: task-network
+  api-gateway:
+    name: task-network
+  usersinfo:
+    name: task-network        
+     

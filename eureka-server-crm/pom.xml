@@ -14,7 +14,7 @@
 	<name>eureka-server-crm</name>
 	<description>com.crm.eurekaserver</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 		<spring-cloud.version>2022.0.2</spring-cloud.version>
 	</properties>
 	<dependencies>
@@ -28,6 +28,14 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		
+		
+		
+		
+		
+		
+		
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -47,7 +55,31 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-		</plugins>
+		
+		
+<plugin>
+	<groupId>com.google.cloud.tools</groupId>
+	<artifactId>jib-maven-plugin</artifactId>
+	<version>3.3.2</version>
+	<configuration>
+		<from>
+			<image>azul/zulu-openjdk:17-jre</image>
+		</from>
+		<container>
+			<mainClass>com.crm.eurekaserver.EurekaServerCrmApplication</mainClass>
+			<format>OCI</format>
+			<ports>
+            	<port>8761</port>
+        	</ports>
+		</container>
+		<to>
+			<image>registry.hub.docker.com/shevajoker/eureka-server</image>
+		</to>
+	</configuration>
+</plugin>
+
+
+	</plugins>
 	</build>
 	<repositories>
 		<repository>
